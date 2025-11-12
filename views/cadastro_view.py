@@ -8,7 +8,22 @@ def carregar_cadastro(root):
     for widget in root.winfo_children():
         widget.destroy()
 
-    frame = ttk.Frame(root, padding=30)
+    canvas = tk.Canvas(root)
+    scrollbar = ttk.Scrollbar(root, orient="vertical", command=canvas.yview)
+    scrollable_frame = ttk.Frame(canvas)
+
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+
+    frame = ttk.Frame(scrollable_frame, padding=30)
     frame.pack(fill="both", expand=True)
 
     ttk.Label(frame, text="Cadastro de Produto", font=("Helvetica", 18)).pack(pady=10)
@@ -18,7 +33,8 @@ def carregar_cadastro(root):
         "Fabricante": "fabricante",
         "Modelo": "modelo",
         "Descrição": "descricao",
-        "Quantidade": "quantidade"
+        "Quantidade": "quantidade",
+        "Estoque Mínimo": "estoque_minimo"
     }
 
     campos = {}
@@ -34,8 +50,8 @@ def carregar_cadastro(root):
 
     def salvar():
         dados = {k: v.get() for k, v in campos.items()}
-        if not dados["quantidade"].isdigit():
-            messagebox.showerror("Erro", "Quantidade deve ser um número.")
+        if not dados["quantidade"].isdigit() or not dados["estoque_minimo"].isdigit():
+            messagebox.showerror("Erro", "Quantidade e Estoque Mínimo devem ser números.")
             return
         cadastrar_produto(**dados)
         messagebox.showinfo("Sucesso", "Produto cadastrado com sucesso.")
