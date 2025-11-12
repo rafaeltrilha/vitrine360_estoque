@@ -1,7 +1,6 @@
 import ttkbootstrap as ttk
 from ttkbootstrap.constants import *
 import tkinter as tk
-from tkinter import messagebox
 
 def carregar_relatorios(root):
     for widget in root.winfo_children():
@@ -15,6 +14,3 @@ def carregar_relatorios(root):
 
     def voltar():
         from views.menu_view import carregar_menu
-        carregar_menu(root)
-
-    ttk.Button(frame, text="Voltar", command=voltar).pack(pady=30)

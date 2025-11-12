@@ -13,12 +13,21 @@ def carregar_crud(root):
 
     ttk.Label(frame, text="Consulta e Edição de Produto", font=("Helvetica", 18)).pack(pady=10)
 
+    nomes_campos = {
+        "ID": "id",
+        "Nome": "nome",
+        "Fabricante": "fabricante",
+        "Modelo": "modelo",
+        "Descrição": "descricao",
+        "Quantidade": "quantidade"
+    }
+
     campos = {}
-    for campo in ["ID", "Nome", "Fabricante", "Modelo", "Descrição", "Quantidade"]:
-        ttk.Label(frame, text=campo).pack()
+    for rotulo, chave in nomes_campos.items():
+        ttk.Label(frame, text=rotulo).pack()
         entrada = ttk.Entry(frame, width=50)
         entrada.pack(pady=5)
-        campos[campo.lower()] = entrada
+        campos[chave] = entrada
 
     def limpar():
         for entrada in campos.values():
@@ -28,7 +37,10 @@ def carregar_crud(root):
         try:
             conn = conectar()
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM produtos WHERE id = %s", (campos["id"].get(),))
+            cursor.execute("""
+                SELECT id, nome, fabricante, modelo, descricao, quantidade
+                FROM produtos WHERE id = %s
+            """, (campos["id"].get(),))
             produto = cursor.fetchone()
             conn.close()
 
@@ -39,15 +51,15 @@ def carregar_crud(root):
                 campos["descricao"].delete(0, tk.END)
                 campos["quantidade"].delete(0, tk.END)
 
-                campos["nome"].insert(0, produto[1])
-                campos["fabricante"].insert(0, produto[2])
-                campos["modelo"].insert(0, produto[3])
-                campos["descricao"].insert(0, produto[4])
-                campos["quantidade"].insert(0, produto[5])
+                campos["nome"].insert(0, str(produto[1]) if produto[1] else "")
+                campos["fabricante"].insert(0, str(produto[2]) if produto[2] else "")
+                campos["modelo"].insert(0, str(produto[3]) if produto[3] else "")
+                campos["descricao"].insert(0, str(produto[4]) if produto[4] else "")
+                campos["quantidade"].insert(0, str(produto[5]) if produto[5] else "")
             else:
                 messagebox.showinfo("Aviso", "Produto não encontrado.")
         except Exception as e:
-            messagebox.showerror("Erro", str(e))
+            messagebox.showerror("Erro", f"Falha ao buscar produto: {str(e)}")
 
     def atualizar():
         try:
@@ -69,7 +81,7 @@ def carregar_crud(root):
             conn.close()
             messagebox.showinfo("Sucesso", "Produto atualizado com sucesso.")
         except Exception as e:
-            messagebox.showerror("Erro", str(e))
+            messagebox.showerror("Erro", f"Falha ao atualizar: {str(e)}")
 
     def excluir():
         try:
@@ -81,17 +93,20 @@ def carregar_crud(root):
             messagebox.showinfo("Sucesso", "Produto excluído com sucesso.")
             limpar()
         except Exception as e:
-            messagebox.showerror("Erro", str(e))
+            messagebox.showerror("Erro", f"Falha ao excluir: {str(e)}")
 
     def voltar():
         from views.menu_view import carregar_menu
         carregar_menu(root)
 
-    ttk.Button(frame, text="Buscar", command=buscar).pack(pady=5)
-    ttk.Button(frame, text="Atualizar", command=atualizar).pack(pady=5)
-    ttk.Button(frame, text="Excluir", command=excluir).pack(pady=5)
-    ttk.Button(frame, text="Limpar", command=limpar).pack(pady=5)
-    ttk.Button(frame, text="Voltar", command=voltar).pack(pady=20)
+    botoes = ttk.Frame(frame)
+    botoes.pack(pady=20)
+
+    ttk.Button(botoes, text="Buscar", command=buscar).grid(row=0, column=0, padx=5)
+    ttk.Button(botoes, text="Atualizar", command=atualizar).grid(row=0, column=1, padx=5)
+    ttk.Button(botoes, text="Excluir", command=excluir).grid(row=0, column=2, padx=5)
+    ttk.Button(botoes, text="Limpar", command=limpar).grid(row=0, column=3, padx=5)
+    ttk.Button(botoes, text="Voltar", command=voltar).grid(row=0, column=4, padx=5)
 
 
 # import tkinter as tk

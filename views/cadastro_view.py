@@ -13,12 +13,20 @@ def carregar_cadastro(root):
 
     ttk.Label(frame, text="Cadastro de Produto", font=("Helvetica", 18)).pack(pady=10)
 
+    nomes_campos = {
+        "Nome": "nome",
+        "Fabricante": "fabricante",
+        "Modelo": "modelo",
+        "Descrição": "descricao",
+        "Quantidade": "quantidade"
+    }
+
     campos = {}
-    for campo in ["Nome", "Fabricante", "Modelo", "Descrição", "Quantidade"]:
-        ttk.Label(frame, text=campo).pack()
+    for rotulo, chave in nomes_campos.items():
+        ttk.Label(frame, text=rotulo).pack()
         entrada = ttk.Entry(frame, width=50)
         entrada.pack(pady=5)
-        campos[campo.lower()] = entrada
+        campos[chave] = entrada
 
     def limpar():
         for entrada in campos.values():
@@ -37,9 +45,12 @@ def carregar_cadastro(root):
         from views.menu_view import carregar_menu
         carregar_menu(root)
 
-    ttk.Button(frame, text="Salvar", command=salvar).pack(pady=10)
-    ttk.Button(frame, text="Limpar", command=limpar).pack()
-    ttk.Button(frame, text="Voltar", command=voltar).pack(pady=20)
+    botoes = ttk.Frame(frame)
+    botoes.pack(pady=20)
+
+    ttk.Button(botoes, text="Salvar", command=salvar).grid(row=0, column=0, padx=5)
+    ttk.Button(botoes, text="Limpar", command=limpar).grid(row=0, column=1, padx=5)
+    ttk.Button(botoes, text="Voltar", command=voltar).grid(row=0, column=2, padx=5)
 
 
 

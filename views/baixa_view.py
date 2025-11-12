@@ -42,9 +42,12 @@ def carregar_baixa(root):
         from views.menu_view import carregar_menu
         carregar_menu(root)
 
-    ttk.Button(frame, text="Lançar Baixa", command=baixar).pack(pady=10)
-    ttk.Button(frame, text="Limpar", command=limpar).pack()
-    ttk.Button(frame, text="Voltar", command=voltar).pack(pady=20)
+    botoes = ttk.Frame(frame)
+    botoes.pack(pady=20)
+
+    ttk.Button(botoes, text="Lançar Baixa", command=baixar).grid(row=0, column=0, padx=5)
+    ttk.Button(botoes, text="Limpar", command=limpar).grid(row=0, column=1, padx=5)
+    ttk.Button(botoes, text="Voltar", command=voltar).grid(row=0, column=2, padx=5)
 
 
 # import tkinter as tk
