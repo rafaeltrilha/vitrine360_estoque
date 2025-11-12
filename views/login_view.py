@@ -1,23 +1,24 @@
 import tkinter as tk
 from tkinter import messagebox
 from controllers.usuario_controller import autenticar
+from controllers.login_controller import autenticar_usuario
 
 def abrir_login(callback_sucesso):
     janela = tk.Tk()
     janela.title("Login - Vitrine360")
 
-    tk.Label(janela, text="Email").grid(row=0, column=0)
-    entry_email = tk.Entry(janela)
-    entry_email.grid(row=0, column=1)
+    tk.Label(janela, text="Nome").grid(row=0, column=0)
+    entry_nome = tk.Entry(janela)
+    entry_nome.grid(row=0, column=1)
 
     tk.Label(janela, text="Senha").grid(row=1, column=0)
     entry_senha = tk.Entry(janela, show="*")
     entry_senha.grid(row=1, column=1)
 
     def login():
-        email = entry_email.get()
+        nome = entry_nome.get()
         senha = entry_senha.get()
-        usuario = autenticar(email, senha)
+        usuario = autenticar(nome, senha)
         if usuario:
             janela.destroy()
             callback_sucesso()

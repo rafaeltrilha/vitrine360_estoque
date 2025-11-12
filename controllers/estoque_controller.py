@@ -12,23 +12,49 @@ def cadastrar_produto(produto):
     conn.close()
 
 def baixar_estoque(produto_id, quantidade_baixa):
-    conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute("SELECT quantidade FROM produtos WHERE id = %s", (produto_id,))
-    resultado = cursor.fetchone()
+    try:
+        conn = conectar()
+        cursor = conn.cursor()
 
-    if resultado:
-        nova_qtd = resultado[0] - quantidade_baixa
-        if nova_qtd < 0:
+        # Inicia transação
+        cursor.execute("START TRANSACTION")
+
+        # Verifica quantidade atual
+        cursor.execute("SELECT quantidade FROM produtos WHERE id = %s FOR UPDATE", (produto_id,))
+        resultado = cursor.fetchone()
+
+        if resultado:
+            quantidade_atual = resultado[0]
+            nova_qtd = quantidade_atual - quantidade_baixa
+
+            if nova_qtd < 0:
+                conn.rollback()
+                conn.close()
+                return "Estoque insuficiente"
+
+            # Atualiza estoque
+            cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", (nova_qtd, produto_id))
+
+            # Registra movimentação
+            cursor.execute("""
+                INSERT INTO movimentacoes (produto_id, tipo, quantidade)
+                VALUES (%s, %s, %s)
+            """, (produto_id, "baixa", quantidade_baixa))
+
+            conn.commit()
             conn.close()
-            return "Estoque insuficiente"
-        cursor.execute("UPDATE produtos SET quantidade = %s WHERE id = %s", (nova_qtd, produto_id))
-        registrar_movimentacao(produto_id, "baixa", quantidade_baixa)
-        conn.commit()
-        conn.close()
-        return nova_qtd
-    conn.close()
-    return "Produto não encontrado"
+            return nova_qtd
+        else:
+            conn.rollback()
+            conn.close()
+            return "Produto não encontrado"
+    except Exception as e:
+        try:
+            conn.rollback()
+            conn.close()
+        except:
+            pass
+        return f"Erro: {str(e)}"
 
 def registrar_movimentacao(produto_id, tipo, quantidade):
     conn = conectar()
